@@ -19,11 +19,17 @@ export default function Home() {
             <a href="#recursos" className="hover:text-blue-700">Recursos</a>
             <a href="#como-funciona" className="hover:text-blue-700">Como funciona</a>
             <a href="#preco" className="hover:text-blue-700">Preço</a>
-            <a
+              <a
               href="/intent"
               className="rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 text-sm"
             >
               Quero me inscrever
+            </a>
+            <a
+              href="/login"
+              className="rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 text-sm"
+            >
+             Aréa Membros
             </a>
           </nav>
           <a

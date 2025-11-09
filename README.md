@@ -1,23 +1,28 @@
-# GroupWorking — MVP do fluxo de admissão
+# GroupWorking — Plataforma de gestão de grupos de networking
 
-Este repositório contém o MVP descrito no `Architecture.md`, implementado em **Next.js (App Router)** com React 19. Ele cobre todo o fluxo obrigatório de admissão de novos membros:
+Este projeto implementa o fluxo descrito em `Architecture.MD` usando **Next.js 16 (App Router)**, **React 19**, **Prisma** e **MariaDB/MySQL**. O MVP atual inclui:
 
-1. Formulário público para intenção de participação.
-2. Painel do administrador para aprovar/recusar intenções e gerar tokens.
-3. Cadastro completo protegido por token (convite).
+1. Formulário público para captar intenções de novos membros.
+2. Painel administrativo para revisar e aprovar/recusar intenções.
+3. Autenticação baseada em **JWT** com cookies httpOnly para proteger a área administrativa.
 
-Todos os módulos (frontend e backend) rodam dentro do mesmo projeto Next.js. A camada de persistência utiliza um storage em arquivo (`data/db.json`) para simplificar a validação local sem depender de um banco externo.
+Toda a stack (frontend + backend + API) roda no mesmo app Next.js.
 
 ---
 
 ## Requisitos
 
 - Node.js 18+
-- npm (ou pnpm/yarn adaptando os comandos)
+- Banco compatível com MariaDB/MySQL
+- Variáveis de ambiente:
+  - `DATABASE_URL` – string de conexão aceitada pelo Prisma.
+  - `JWT_SECRET` – chave usada para assinar os tokens.
+
+> Dica: gere uma chave segura com `openssl rand -base64 32`.
 
 ---
 
-## Como executar
+## Configuração e execução
 
 1. Instale as dependências:
 
@@ -25,53 +30,67 @@ Todos os módulos (frontend e backend) rodam dentro do mesmo projeto Next.js. A 
    npm install
    ```
 
-2. Opcional: defina um token personalizado para o administrador criando `.env.local` na raiz:
+2. Configure o `.env`:
+
+   ```bash
+   cp .env.example .env   # caso exista um exemplo
+   ```
+
+   Preencha pelo menos:
 
    ```
-   ADMIN_TOKEN=meu-token-super-secreto
-   INVITE_EXPIRATION_HOURS=72
+   DATABASE_URL="mysql://user:password@localhost:3306/groupworking"
+   JWT_SECRET="coloque-uma-chave-secreta-aqui"
    ```
 
-   - `ADMIN_TOKEN` também é aceito via variável de ambiente na execução (padrão `admin-secret`).
-   - Os convites expiram após 72h por padrão.
+3. Execute as migrações/geração do Prisma:
 
-3. Inicie o servidor de desenvolvimento:
+   ```bash
+   npx prisma migrate dev
+   npx prisma generate
+   ```
+
+4. Crie um membro administrador ativo com senha. Exemplo via Node REPL para gerar o hash:
+
+   ```bash
+   node -e "console.log(require('bcryptjs').hashSync('minha-senha', 10))"
+   ```
+
+   Use o Prisma Studio (`npx prisma studio`) ou SQL para inserir o registro em `members` preenchendo `password_hash` com o hash gerado e `admin = true`.
+
+5. Rode o servidor:
 
    ```bash
    npm run dev
    ```
 
-4. Abra `http://localhost:3000` para acessar:
-   - `/` – formulário público.
-   - `/admin` – painel do administrador (informe o token no campo superior).
-   - `/register/[token]` – link gerado automaticamente ao aprovar uma intenção.
+6. URLs importantes:
+
+   - `/intent` – formulário público de intenção.
+   - `/login` – autenticação (gera cookie httpOnly).
+   - `/admin/intentions` – painel administrativo protegido.
 
 ---
 
-## Persistência
+## API principal
 
-- Os dados ficam no arquivo `data/db.json`.
-- Para “resetar” o ambiente, apague o arquivo (o app recria automaticamente).
-- Estrutura compatível com o modelo documentado (`intentions`, `inviteTokens`, `members`).
+| Método | Rota                               | Auth                    | Descrição                                      |
+| ------ | ---------------------------------- | ----------------------- | ---------------------------------------------- |
+| POST   | `/api/intentions`                  | Pública                 | Cria uma intenção de participação.             |
+| GET    | `/api/admin/intentions`            | Bearer/cookie (admin)   | Lista intenções submetidas.                    |
+| PATCH  | `/api/admin/intentions/:id`        | Bearer/cookie (admin)   | Aprova ou rejeita uma intenção.                |
+| POST   | `/api/auth/login`                  | Pública                 | Autentica membro/admin e emite JWT + cookie.   |
+| POST   | `/api/auth/logout`                 | Cookie                  | Revoga o cookie de sessão.                     |
+| GET    | `/api/auth/me`                     | Bearer/cookie           | Retorna o usuário autenticado.                 |
 
----
-
-## API disponível (Next.js Route Handlers)
-
-| Método | Rota                     | Descrição                                                     |
-| ------ | ------------------------ | ------------------------------------------------------------- |
-| POST   | `/api/intentions`        | Cria uma intenção pública.                                    |
-| GET    | `/api/intentions`        | Lista intenções (requer header `x-admin-token`).              |
-| PATCH  | `/api/intentions/:id`    | Aprova ou recusa uma intenção (gera token quando aprova).     |
-| GET    | `/api/invites/:token`    | Valida o token de convite e retorna dados da intenção.        |
-| POST   | `/api/members`           | Conclui o cadastro completo usando um token válido.          |
+Toda rota protegida aceita tanto o cabeçalho `Authorization: Bearer <token>` quanto o cookie `gw.token`, emitido no login.
 
 ---
 
 ## Próximos passos sugeridos
 
-- Substituir o storage em arquivo por um banco relacional (MariaDB/MySQL) usando Prisma.
-- Expandir os módulos planejados (avisos, check-ins, indicações, financeiro).
-- Adicionar autenticação real para administradores/membros.
+- Implementar o fluxo completo de convite (`/signup?token=...`) e criação de senha.
+- Expandir os módulos descritos no documento de arquitetura (indicações, dashboards, financeiro).
+- Adicionar testes automatizados para os handlers críticos e componentes React.
 
-Com isso o MVP cobre o requisito obrigatório da Task 2 focando no fluxo de admissão. Bons testes! 🎯
+Com isso o projeto já possui autenticação JWT real e uma base sólida para evoluir os demais módulos. 🎯

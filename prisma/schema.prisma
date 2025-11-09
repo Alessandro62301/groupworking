@@ -68,6 +68,7 @@ model Member {
   status     MemberStatus  @default(active)
   joinedAt   DateTime      @default(now()) @map("joined_at")
   admin      Boolean       @default(false)                 
+  passwordHash String      @map("password_hash")
 
   checkins   Checkin[]
   referralsFrom Referral[] @relation("ReferralsFrom")
