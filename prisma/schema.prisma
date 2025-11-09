@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum IntentionStatus {
+  pending
+  approved
+  rejected
+}
+
+enum MemberStatus {
+  active
+  inactive
+}
+
+enum ReferralStatus {
+  pending
+  in_progress
+  won
+  lost
+}
+
+enum DueStatus {
+  open
+  paid
+  overdue
+}
+
+model Intention {
+  id        Int             @id @default(autoincrement()) @db.UnsignedInt
+  fullName  String          @map("full_name") @db.VarChar(150)
+  email     String          @unique @db.VarChar(160)
+  company   String?         @db.VarChar(160)
+  phone     String?         @db.VarChar(40)
+  notes     String?
+  status    IntentionStatus @default(pending)
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  invite InviteToken?
+
+  @@map("intentions")
+}
+
+model InviteToken {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  intentionId Int      @unique @map("intention_id") @db.UnsignedInt // ✅ aqui
+  token       String   @unique @db.Char(32)
+  expiresAt   DateTime @map("expires_at")
+  used        Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  intention Intention @relation(fields: [intentionId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("invite_tokens")
+}
+
+model Member {
+  id       Int          @id @default(autoincrement()) @db.UnsignedInt
+  fullName String       @map("full_name") @db.VarChar(150)
+  email    String       @unique @db.VarChar(160)
+  company  String?      @db.VarChar(160)
+  phone    String?      @db.VarChar(40)
+  status   MemberStatus @default(active)
+  joinedAt DateTime     @default(now()) @map("joined_at")
+
+  checkins      Checkin[]
+  referralsFrom Referral[] @relation("ReferralsFrom")
+  referralsTo   Referral[] @relation("ReferralsTo")
+  thanksFrom    Thanks[]   @relation("ThanksFrom")
+  thanksTo      Thanks[]   @relation("ThanksTo")
+  dues          Due[]
+  oneA          OneOnOne[] @relation("OneA")
+  oneB          OneOnOne[] @relation("OneB")
+
+  @@map("members")
+}
+
+model Announcement {
+  id            Int      @id @default(autoincrement()) @db.UnsignedInt
+  title         String   @db.VarChar(180)
+  body          String
+  publishedAt   DateTime @default(now()) @map("published_at")
+  authorAdminId Int?     @map("author_admin_id") @db.UnsignedInt
+
+  @@map("announcements")
+}
+
+model Meeting {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  meetingDate DateTime @map("meeting_date")
+  location    String?  @db.VarChar(160)
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  checkins Checkin[]
+
+  @@map("meetings")
+}
+
+model Checkin {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  memberId  Int      @map("member_id") @db.UnsignedInt
+  meetingId Int      @map("meeting_id") @db.UnsignedInt
+  checkedAt DateTime @default(now()) @map("checked_at")
+
+  member  Member  @relation(fields: [memberId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  meeting Meeting @relation(fields: [meetingId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@unique([memberId, meetingId], name: "uq_checkins_member_meeting")
+  @@map("checkins")
+}
+
+model Referral {
+  id           Int            @id @default(autoincrement()) @db.UnsignedInt
+  fromMemberId Int            @map("from_member_id") @db.UnsignedInt
+  toMemberId   Int            @map("to_member_id") @db.UnsignedInt
+  title        String         @db.VarChar(180)
+  description  String?
+  status       ReferralStatus @default(pending)
+  valueCents   BigInt?        @map("value_cents") @db.UnsignedBigInt
+  currency     String         @default("BRL") @db.Char(3)
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  fromMember Member @relation("ReferralsFrom", fields: [fromMemberId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  toMember   Member @relation("ReferralsTo", fields: [toMemberId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("referrals")
+}
+
+model OneOnOne {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  memberAId  Int      @map("member_a_id") @db.UnsignedInt
+  memberBId  Int      @map("member_b_id") @db.UnsignedInt
+  occurredAt DateTime @map("occurred_at")
+  notes      String?
+
+  memberA Member @relation("OneA", fields: [memberAId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  memberB Member @relation("OneB", fields: [memberBId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("one_on_ones")
+}
+
+model Thanks {
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
+  fromMemberId Int      @map("from_member_id") @db.UnsignedInt
+  toMemberId   Int      @map("to_member_id") @db.UnsignedInt
+  message      String?
+  valueCents   BigInt?  @map("value_cents") @db.UnsignedBigInt
+  currency     String   @default("BRL") @db.Char(3)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  fromMember Member @relation("ThanksFrom", fields: [fromMemberId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  toMember   Member @relation("ThanksTo", fields: [toMemberId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("thanks")
+}
+
+model Due {
+  id             Int       @id @default(autoincrement()) @db.UnsignedInt
+  memberId       Int       @map("member_id") @db.UnsignedInt
+  referenceMonth DateTime  @map("reference_month") // mapeia DATE (use somente o dia 01)
+  amountCents    BigInt    @map("amount_cents") @db.UnsignedBigInt
+  currency       String    @default("BRL") @db.Char(3)
+  status         DueStatus @default(open)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  paidAt         DateTime? @map("paid_at")
+
+  member Member @relation(fields: [memberId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@unique([memberId, referenceMonth], name: "uq_dues_member_month")
+  @@map("dues")
+}
