@@ -9,6 +9,7 @@ import { postJson } from '@/lib/api/http';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/forms/TextField';
+import { ToastContainer, toast } from 'react-toastify';
 
 export default function IntentPage() {
   const [submittedId, setSubmittedId] = useState<number | null>(null);
@@ -24,12 +25,14 @@ export default function IntentPage() {
       setSubmittedId(res?.id ?? null);
       form.reset();
     } catch (e: any) {
-      form.setError('root', { message: e?.message || 'Erro ao enviar intenção.' });
+      toast.error(e?.message);
+      // form.setError('root', { message: e?.message || 'Erro ao enviar intenção.' });
     }
   };
 
   return (
     <div className="min-h-dvh bg-gray-50 flex items-center justify-center p-6">
+      <ToastContainer />
       <Card className="w-full max-w-2xl">
         <div className="p-6 border-b">
           <h1 className="text-2xl font-semibold text-gray-900">Quero participar do grupo ✨</h1>
