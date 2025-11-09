@@ -3,28 +3,51 @@ import { prisma } from '@/lib/db';
 import { intentionSchema } from '@/lib/schemas/intentions';
 
 export async function POST(req: NextRequest) {
-  const json = await req.json();
-  const parsed = intentionSchema.safeParse(json);
+  try {
+    const body = await req.json();
+    const parsed = intentionSchema.safeParse(body);
 
-  if (!parsed.success) {
+    if (!parsed.success) {
+      return NextResponse.json(
+        { message: 'invalid', errors: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const exists = await prisma.intention.findUnique({
+      where: { email: parsed.data.email },
+    });
+
+    if (exists) {
+      return NextResponse.json(
+        { message: 'E-mail já possui uma intenção cadastrada.' },
+        { status: 409 }
+      );
+    }
+
+    const intention = await prisma.intention.create({
+      data: {
+        fullName: parsed.data.full_name,
+        email: parsed.data.email,
+        company: parsed.data.company || null,
+        phone: parsed.data.phone || null,
+        notes: parsed.data.notes || null,
+        status: 'pending',
+      },
+      select: {
+        id: true,
+        email: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    return NextResponse.json(intention, { status: 201 });
+  } catch (error: any) {
+    console.error('Erro ao criar intenção:', error);
     return NextResponse.json(
-      { message: 'invalid', issues: parsed.error.format() },
-      { status: 400 }
+      { message: 'Erro interno no servidor.' },
+      { status: 500 }
     );
   }
-
-  // grava no banco
-  const intention = await prisma.intention.create({
-    data: {
-      full_name: parsed.data.full_name,
-      email: parsed.data.email,
-      company: parsed.data.company,
-      phone: parsed.data.phone,
-      notes: parsed.data.notes,
-      status: 'PENDING',
-    },
-    select: { id: true, status: true, created_at: true },
-  });
-
-  return NextResponse.json(intention, { status: 201 });
 }

@@ -77,6 +77,7 @@ CREATE TABLE members (
   phone VARCHAR(40),
   status ENUM('active','inactive') NOT NULL DEFAULT 'active',
   joined_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  admin TINYINT(1) NOT NULL DEFAULT 0,           -- ✅ novo campo
   PRIMARY KEY (id),
   UNIQUE KEY uq_members_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -60,25 +60,27 @@ model InviteToken {
 }
 
 model Member {
-  id       Int          @id @default(autoincrement()) @db.UnsignedInt
-  fullName String       @map("full_name") @db.VarChar(150)
-  email    String       @unique @db.VarChar(160)
-  company  String?      @db.VarChar(160)
-  phone    String?      @db.VarChar(40)
-  status   MemberStatus @default(active)
-  joinedAt DateTime     @default(now()) @map("joined_at")
+  id         Int           @id @default(autoincrement()) @db.UnsignedInt
+  fullName   String        @map("full_name") @db.VarChar(150)
+  email      String        @unique @db.VarChar(160)
+  company    String?       @db.VarChar(160)
+  phone      String?       @db.VarChar(40)
+  status     MemberStatus  @default(active)
+  joinedAt   DateTime      @default(now()) @map("joined_at")
+  admin      Boolean       @default(false)                 
 
-  checkins      Checkin[]
+  checkins   Checkin[]
   referralsFrom Referral[] @relation("ReferralsFrom")
   referralsTo   Referral[] @relation("ReferralsTo")
-  thanksFrom    Thanks[]   @relation("ThanksFrom")
-  thanksTo      Thanks[]   @relation("ThanksTo")
-  dues          Due[]
-  oneA          OneOnOne[] @relation("OneA")
-  oneB          OneOnOne[] @relation("OneB")
+  thanksFrom  Thanks[]     @relation("ThanksFrom")
+  thanksTo    Thanks[]     @relation("ThanksTo")
+  dues       Due[]
+  oneA       OneOnOne[]    @relation("OneA")
+  oneB       OneOnOne[]    @relation("OneB")
 
   @@map("members")
 }
+
 
 model Announcement {
   id            Int      @id @default(autoincrement()) @db.UnsignedInt

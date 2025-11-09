@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { intentionSchema, IntentionFormData } from '@/lib/schemas/intentions';
+import { intentionSchema, type IntentionSchema } from '@/lib/schemas/intentions';
 import { postJson } from '@/lib/api/http';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -14,12 +13,12 @@ import { ToastContainer, toast } from 'react-toastify';
 export default function IntentPage() {
   const [submittedId, setSubmittedId] = useState<number | null>(null);
 
-  const form = useForm<IntentionFormData>({
+  const form = useForm<IntentionSchema>({
     resolver: zodResolver(intentionSchema),
     defaultValues: { full_name: '', email: '', company: '', phone: '', notes: '' },
   });
 
-  const onSubmit = async (data: IntentionFormData) => {
+  const onSubmit = async (data: IntentionSchema) => {
     try {
       const res = await postJson('/api/intentions', data);
       setSubmittedId(res?.id ?? null);
