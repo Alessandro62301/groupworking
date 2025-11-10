@@ -56,7 +56,6 @@ export default function IntentPage() {
           <TextField control={form.control} name="email" label="E-mail" type="email" required />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <TextField control={form.control} name="company" label="Empresa" />
-            <TextField control={form.control} name="phone" label="Telefone" placeholder="(00) 00000-0000" />
           </div>
           <TextField control={form.control} name="notes" label="Como nos conheceu?" multiline rows={4} />
 

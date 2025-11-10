@@ -10,6 +10,12 @@ import { getJson, patchJson, type ApiError } from '@/lib/api/http';
 
 type IntentionStatus = 'pending' | 'approved' | 'rejected';
 
+type InviteSummary = {
+  token: string;
+  expiresAt: string;
+  used: boolean;
+};
+
 type Intention = {
   id: number;
   fullName: string;
@@ -18,6 +24,7 @@ type Intention = {
   createdAt: string;
   status: IntentionStatus;
   notes?: string;
+  invite?: InviteSummary | null;
 };
 
 const DECISION_LABEL: Record<IntentionStatus, string> = {
@@ -106,6 +113,10 @@ export default function AdminIntentionsPage() {
       );
       if (decision === 'approved') {
         toast.success('Intenção aprovada com sucesso!');
+        if (updated.invite?.token) {
+          const link = buildInviteLink(updated.invite.token);
+          toast.info(`Convite gerado: ${link}`, { autoClose: 5000 });
+        }
       } else {
         toast.warning('Intenção recusada.');
       }
@@ -172,6 +183,15 @@ export default function AdminIntentionsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-end gap-2">
+                          {intention.status === 'approved' && intention.invite?.token ? (
+                            <button
+                              type="button"
+                              onClick={() => handleCopyInvite(intention.invite!.token)}
+                              className="rounded-full border border-neutral-200 px-4 py-1 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100"
+                            >
+                              Copiar convite
+                            </button>
+                          ) : null}
                           <button
                             type="button"
                             disabled={intention.status === 'approved' || decisionLoadingId === intention.id}
@@ -221,6 +241,15 @@ export default function AdminIntentionsPage() {
                         {DECISION_LABEL[intention.status]}
                       </span>
                       <div className="flex flex-col gap-2 sm:flex-row">
+                        {intention.status === 'approved' && intention.invite?.token ? (
+                          <button
+                            type="button"
+                            onClick={() => handleCopyInvite(intention.invite!.token)}
+                            className="w-full rounded-full border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100"
+                          >
+                            Copiar convite
+                          </button>
+                        ) : null}
                         <button
                           type="button"
                           disabled={intention.status === 'approved' || decisionLoadingId === intention.id}
@@ -249,3 +278,22 @@ export default function AdminIntentionsPage() {
     </section>
   );
 }
+  const handleCopyInvite = async (token: string) => {
+    const link = buildInviteLink(token);
+    try {
+      await navigator.clipboard.writeText(link);
+      toast.info('Link de convite copiado.');
+    } catch (error) {
+      console.error('Erro ao copiar link de convite', error);
+      toast.error('Não foi possível copiar o link. Copie manualmente: ' + link);
+    }
+  };
+
+  const buildInviteLink = (token: string) => {
+    if (typeof window === 'undefined') {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+      return `${baseUrl}/signup/${token}`;
+    }
+
+    return `${window.location.origin}/signup/${token}`;
+  };

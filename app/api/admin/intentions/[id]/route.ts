@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/db';
@@ -53,20 +54,51 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
       );
     }
 
-    const updated = await prisma.intention.update({
-      where: { id: intentionId },
-      data: { status: parsed.data.decision },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        company: true,
-        status: true,
-        createdAt: true,
-      },
+    const result = await prisma.$transaction(async (tx) => {
+      const updated = await tx.intention.update({
+        where: { id: intentionId },
+        data: { status: parsed.data.decision },
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          company: true,
+          status: true,
+          createdAt: true,
+          invite: {
+            select: {
+              token: true,
+              expiresAt: true,
+              used: true,
+            },
+          },
+        },
+      });
+
+      if (parsed.data.decision !== 'approved') {
+        return { updated, invite: updated.invite };
+      }
+
+      const token = crypto.randomBytes(16).toString('hex');
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+      const invite = await tx.inviteToken.upsert({
+        where: { intentionId },
+        update: { token, expiresAt, used: false },
+        create: { intentionId, token, expiresAt },
+        select: { token: true, expiresAt: true, used: true },
+      });
+
+      // Simula envio de e-mail
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+      console.log(
+        `[Convite] Intenção #${intentionId} aprovada para ${updated.email}. Token: ${invite.token}. Link: ${baseUrl}/signup/${invite.token}`,
+      );
+
+      return { updated, invite };
     });
 
-    return NextResponse.json(updated, { status: 200 });
+    return NextResponse.json({ ...result.updated, invite: result.invite }, { status: 200 });
   } catch (error) {
     if (isAuthError(error)) {
       return NextResponse.json({ message: error.message }, { status: error.statusCode });

@@ -16,6 +16,13 @@ export async function GET(req: NextRequest) {
         company: true,
         status: true,
         createdAt: true,
+        invite: {
+          select: {
+            token: true,
+            expiresAt: true,
+            used: true,
+          },
+        },
       },
     });
 
