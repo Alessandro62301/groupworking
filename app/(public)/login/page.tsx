@@ -25,8 +25,13 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginSchema) => {
     setErrorMessage(null);
     try {
-      await postJson('/api/auth/login', values);
-      router.push('/admin/intentions');
+      const response = await postJson<{
+        user?: {
+          role?: 'admin' | 'member';
+        };
+      }>('/api/auth/login', values);
+      const role = response?.user?.role === 'admin' ? 'admin' : 'member';
+      router.push(role === 'admin' ? '/admin/intentions' : '/member/referrals');
     } catch (error) {
       setErrorMessage((error as Error)?.message ?? 'Falha ao autenticar.');
     }
