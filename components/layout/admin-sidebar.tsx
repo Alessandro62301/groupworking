@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export type AdminNavItem = {
   href: string;
@@ -16,6 +17,31 @@ type AdminSidebarProps = {
 
 export function AdminSidebar({ items, onNavigate }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+    try {
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+
+      if (!response.ok) {
+        throw new Error('Falha ao deslogar');
+      }
+
+      onNavigate?.();
+      router.replace('/login');
+      router.refresh();
+    } catch (error) {
+      console.error('Erro ao deslogar:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <aside className="w-64 border-r border-neutral-200 bg-white">
@@ -54,6 +80,17 @@ export function AdminSidebar({ items, onNavigate }: AdminSidebarProps) {
           );
         })}
       </nav>
+
+      <div className="border-t border-neutral-200 px-4 py-6">
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isLoggingOut ? 'Saindo...' : 'Sair'}
+        </button>
+      </div>
     </aside>
   );
 }

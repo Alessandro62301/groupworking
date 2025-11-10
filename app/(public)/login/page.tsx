@@ -33,7 +33,7 @@ export default function LoginPage() {
   };
 
   return (
-   <section className='w-full min-h-screen bg-gray-50 flex justify-center align-middle' >
+   <section className='w-full min-h-screen bg-gray-50 pt-40 flex justify-center align-middle' >
      <div className="flex items-center w-2xl h-72 justify-center px-4">
       <Card className="w-full  max-w-md space-y-6 p-8">
         <div className="space-y-1">

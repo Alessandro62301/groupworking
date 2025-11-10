@@ -17,9 +17,6 @@ Toda a stack (frontend + backend + API) roda no mesmo app Next.js.
 - Variáveis de ambiente:
   - `DATABASE_URL` – string de conexão aceitada pelo Prisma.
   - `JWT_SECRET` – chave usada para assinar os tokens.
-
-> Dica: gere uma chave segura com `openssl rand -base64 32`.
-
 ---
 
 ## Configuração e execução
@@ -33,7 +30,7 @@ Toda a stack (frontend + backend + API) roda no mesmo app Next.js.
 2. Configure o `.env`:
 
    ```bash
-   cp .env.example .env   # caso exista um exemplo
+   Copie .env.example para .env
    ```
 
    Preencha pelo menos:
@@ -48,9 +45,10 @@ Toda a stack (frontend + backend + API) roda no mesmo app Next.js.
    ```bash
    npx prisma migrate dev
    npx prisma generate
+   tsx prisma db seed         # Somente Ambiente de Desemvolvimento
    ```
 
-4. Crie um membro administrador ativo com senha. Exemplo via Node REPL para gerar o hash:
+4. Crie um membro administrador ativo com senha. Exemplo via Node REPL para gerar o hash ou Utilizamos o Seed para Gerar um Admin ativo:
 
    ```bash
    node -e "console.log(require('bcryptjs').hashSync('minha-senha', 10))"
@@ -58,39 +56,105 @@ Toda a stack (frontend + backend + API) roda no mesmo app Next.js.
 
    Use o Prisma Studio (`npx prisma studio`) ou SQL para inserir o registro em `members` preenchendo `password_hash` com o hash gerado e `admin = true`.
 
-5. Rode o servidor:
+   perfeito 👏 — aqui está a **versão em português** da lista completa de tudo que o **seeder** cadastra no seu banco de dados, formatada em Markdown para você incluir no repositório (`prisma/README_SEED.md`, por exemplo):
+
+---
+
+### **Resumo dos Dados do Seeder**
+
+Este seed popula o banco de dados com **dados iniciais de exemplo**, ideais para desenvolvimento e testes locais.
+
+---
+
+#### **Membros (Members)**
+
+| Nome                | E-mail                   | Empresa           | Função                                | Senha       |
+| ------------------- | ------------------------ | ----------------- | ------------------------------------- | ----------- |
+| **Admin do Grupo**  | `admin@groupworking.com` | GroupWorking Ltda | 🛠️ **Administrador** (`admin: true`) | `admin123`  |
+| **Maria Silva**     | `maria@empresa.com`      | MS Marketing      | Membro                                | `maria123`  |
+| **Carlos Ferreira** | `carlos@startup.com`     | Startup X         | Membro                                | `carlos123` |
+
+> 🔒 As senhas são criptografadas com **bcrypt (10 salt rounds)** e armazenadas no campo `password_hash`.
+
+---
+
+##  **Intenções de Participação (Intentions)**
+
+| Nome               | E-mail                       | Status     | Observações                                    |
+| ------------------ | ---------------------------- | ---------- | ---------------------------------------------- |
+| **João Candidato** | `joao.candidato@example.com` | `pending`  | “Conheceu o grupo em um evento de tecnologia.” |
+| **Ana Aprovada**   | `ana.aprovada@example.com`   | `approved` | —                                              |
+
+---
+
+## **Tokens de Convite (Invite Tokens)**
+
+| Token                              | Intenção Vinculada | Expira em | Utilizado |
+| ---------------------------------- | ------------------ | --------- | --------- |
+| `11112222333344445555666677778888` | Ana Aprovada       | +7 dias   | ❌ Não     |
+
+---
+
+## **Reuniões (Meetings)**
+
+| Data | Local                   | Observações                 |
+| ---- | ----------------------- | --------------------------- |
+| Hoje | Espaço Coworking Center | “Reunião semanal do grupo.” |
+
+### **Check-ins**
+
+| Membro          | Reunião         | Horário |
+| --------------- | --------------- | ------- |
+| Admin do Grupo  | Reunião Semanal | Agora   |
+| Maria Silva     | Reunião Semanal | Agora   |
+| Carlos Ferreira | Reunião Semanal | Agora   |
+
+---
+
+## **Indicações (Referrals)**
+
+| De → Para                         | Título                    | Descrição                                            | Status        | Valor       |
+| --------------------------------- | ------------------------- | ---------------------------------------------------- | ------------- | ----------- |
+| **Maria Silva → Carlos Ferreira** | “Site institucional XPTO” | “Maria indicou Carlos para desenvolver o site XPTO.” | `in_progress` | R$ 8.000,00 |
+
+---
+
+## **Agradecimentos (Thanks)**
+
+| De → Para                         | Mensagem                          | Valor     |
+| --------------------------------- | --------------------------------- | --------- |
+| **Carlos Ferreira → Maria Silva** | “Obrigado pela indicação, Maria!” | R$ 200,00 |
+
+---
+
+## **Reuniões 1 a 1 (One-on-Ones)**
+
+| Membro A        | Membro B            | Data      | Observações                                         |
+| --------------- | ------------------- | --------- | --------------------------------------------------- |
+| **Maria Silva** | **Carlos Ferreira** | Há 3 dias | “Conversamos sobre possíveis parcerias comerciais.” |
+
+---
+
+## **Mensalidades (Dues)**
+
+| Membro          | Mês de Referência      | Valor     | Status |
+| --------------- | ---------------------- | --------- | ------ |
+| **Maria Silva** | Mês atual (YYYY-MM-01) | R$ 150,00 | `open` |
+
+---
+
+# 5. Rode o servidor:
 
    ```bash
    npm run dev
    ```
 
-6. URLs importantes:
+# 6. URLs importantes:
 
+   - `/` – Landing page com pequena aprensetação do nosso sistema.
    - `/intent` – formulário público de intenção.
    - `/login` – autenticação (gera cookie httpOnly).
-   - `/admin/intentions` – painel administrativo protegido.
+   - `/admin/` – painel administrativo protegido.
+   - `/admin/intentions` – painel para aprovação de novos membros.
 
 ---
-
-## API principal
-
-| Método | Rota                               | Auth                    | Descrição                                      |
-| ------ | ---------------------------------- | ----------------------- | ---------------------------------------------- |
-| POST   | `/api/intentions`                  | Pública                 | Cria uma intenção de participação.             |
-| GET    | `/api/admin/intentions`            | Bearer/cookie (admin)   | Lista intenções submetidas.                    |
-| PATCH  | `/api/admin/intentions/:id`        | Bearer/cookie (admin)   | Aprova ou rejeita uma intenção.                |
-| POST   | `/api/auth/login`                  | Pública                 | Autentica membro/admin e emite JWT + cookie.   |
-| POST   | `/api/auth/logout`                 | Cookie                  | Revoga o cookie de sessão.                     |
-| GET    | `/api/auth/me`                     | Bearer/cookie           | Retorna o usuário autenticado.                 |
-
-Toda rota protegida aceita tanto o cabeçalho `Authorization: Bearer <token>` quanto o cookie `gw.token`, emitido no login.
-
----
-
-## Próximos passos sugeridos
-
-- Implementar o fluxo completo de convite (`/signup?token=...`) e criação de senha.
-- Expandir os módulos descritos no documento de arquitetura (indicações, dashboards, financeiro).
-- Adicionar testes automatizados para os handlers críticos e componentes React.
-
-Com isso o projeto já possui autenticação JWT real e uma base sólida para evoluir os demais módulos. 🎯

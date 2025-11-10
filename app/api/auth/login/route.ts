@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 
@@ -39,8 +38,17 @@ export async function POST(req: NextRequest) {
     const role = member.admin ? 'admin' : 'member';
     const token = signToken({ sub: member.id, role });
 
-    const cookieStore = cookies();
-    cookieStore.set({
+    const response = NextResponse.json({
+      token,
+      user: {
+        id: member.id,
+        fullName: member.fullName,
+        email: member.email,
+        role,
+      },
+    });
+
+    response.cookies.set({
       name: AUTH_COOKIE_NAME,
       value: token,
       httpOnly: true,
@@ -50,15 +58,7 @@ export async function POST(req: NextRequest) {
       maxAge: 60 * 60 * 12,
     });
 
-    return NextResponse.json({
-      token,
-      user: {
-        id: member.id,
-        fullName: member.fullName,
-        email: member.email,
-        role,
-      },
-    });
+    return response;
   } catch (error) {
     console.error('Erro ao autenticar:', error);
     return NextResponse.json({ message: 'Erro interno no servidor.' }, { status: 500 });
