@@ -7,7 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import SummaryCard from '@/components/ui/summary-card';
-import { TextField } from '@/components/forms/TextField';
+import { TextField } from '@/components/forms/text-field';
 import { Button } from '@/components/ui/Button';
 import {
   createReferralSchema,

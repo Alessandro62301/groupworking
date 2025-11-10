@@ -8,7 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { TextField } from '@/components/forms/TextField';
+import { TextField } from '@/components/forms/text-field';
 import { completeSignupFormSchema, type CompleteSignupFormSchema } from '@/lib/schemas/signup';
 import { getJson, postJson } from '@/lib/api/http';
 

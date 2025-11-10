@@ -1,9 +1,9 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+
+import { MemberSidebar } from './member-sidebar';
 
 export type MemberNavItem = {
   href: string;
@@ -16,44 +16,19 @@ type MemberShellProps = {
 };
 
 export function MemberShell({ children, navItems }: MemberShellProps) {
-  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <div className="flex min-h-screen">
+    <div className="h-screen overflow-hidden bg-neutral-50">
+      <div className="flex h-full">
         <div
           className={`fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-md transition-transform duration-200 ease-out md:static md:translate-x-0 ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
           }`}
         >
-          <div className="flex h-full flex-col border-r border-neutral-200">
-            <div className="border-b border-neutral-200 px-6 py-5">
-              <p className="text-xs uppercase tracking-widest text-neutral-400">GroupWorking</p>
-              <p className="text-lg font-semibold text-neutral-900">Área do membro</p>
-            </div>
-            <nav className="flex-1 space-y-1 px-4 py-6">
-              {navItems.map((item) => {
-                const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={closeSidebar}
-                    className={`block rounded-xl px-3 py-2 text-sm font-medium transition ${
-                      isActive
-                        ? 'bg-neutral-900 text-white'
-                        : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900'
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+          <MemberSidebar items={navItems} onNavigate={closeSidebar} />
         </div>
 
         {sidebarOpen ? (
@@ -65,7 +40,7 @@ export function MemberShell({ children, navItems }: MemberShellProps) {
           />
         ) : null}
 
-        <div className="flex flex-1 flex-col">
+        <div className="flex h-full flex-1 flex-col overflow-hidden">
           <header className="flex items-center justify-between border-b border-neutral-200 bg-white px-6 py-4 md:px-8">
             <div>
               <p className="text-xs uppercase tracking-wider text-neutral-500">Dashboard do membro</p>
@@ -83,7 +58,7 @@ export function MemberShell({ children, navItems }: MemberShellProps) {
             </button>
           </header>
 
-          <main className="flex-1 px-6 py-6 md:px-8 md:py-8">{children}</main>
+          <main className="flex-1 overflow-y-auto px-6 py-6 md:px-8 md:py-8">{children}</main>
         </div>
       </div>
     </div>

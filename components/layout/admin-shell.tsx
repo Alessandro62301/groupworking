@@ -43,8 +43,8 @@ export function AdminShell({ children, navItems }: AdminShellProps) {
   );
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <div className="flex min-h-screen">
+    <div className="h-screen overflow-hidden bg-neutral-50">
+      <div className="flex h-full">
         <div
           className={`fixed inset-y-0 left-0 z-40 w-64 transform bg-white transition-transform duration-200 ease-out md:static md:translate-x-0 ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
@@ -62,7 +62,7 @@ export function AdminShell({ children, navItems }: AdminShellProps) {
           />
         ) : null}
 
-        <div className="flex flex-1 flex-col">
+        <div className="flex h-full flex-1 flex-col overflow-hidden">
           <header className="flex flex-col gap-4 border-b border-neutral-200 bg-white px-6 py-4 md:px-8 md:py-6">
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -84,7 +84,7 @@ export function AdminShell({ children, navItems }: AdminShellProps) {
             <p className="text-sm text-neutral-500">{header.subtitle}</p>
           </header>
 
-          <main className="flex-1 px-6 py-6 md:px-8 md:py-8">
+          <main className="flex-1 overflow-y-auto px-6 py-6 md:px-8 md:py-8">
             <AdminHeaderProvider value={{ setHeader: handleHeaderChange }}>{children}</AdminHeaderProvider>
           </main>
         </div>

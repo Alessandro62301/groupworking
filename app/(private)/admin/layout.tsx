@@ -5,8 +5,7 @@ import { AdminShell } from '@/components/layout/admin-shell';
 const ADMIN_NAV_ITEMS = [
   { label: 'Dashboard', href: '/admin/' },
   { label: 'Indicações', href: '/admin/referrals' },
-  { label: 'Intenções', href: '/admin/intentions', badge: '2' },
-  { label: 'Avisos', href: '/admin/announcements' },
+  { label: 'Intenções', href: '/admin/intentions'},
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

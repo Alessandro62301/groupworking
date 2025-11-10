@@ -91,22 +91,6 @@ async function main() {
     },
   });
 
-  // 4) Reunião + check-ins
-  const meeting = await prisma.meeting.create({
-    data: {
-      meetingDate: new Date(),
-      location: 'Espaço Coworking Center',
-      notes: 'Reunião semanal do grupo',
-    },
-  });
-
-  await prisma.checkin.createMany({
-    data: [
-      { memberId: admin.id, meetingId: meeting.id },
-      { memberId: maria.id, meetingId: meeting.id },
-      { memberId: carlos.id, meetingId: meeting.id },
-    ],
-  });
 
   // 5) Indicação (Maria -> Carlos)
   const referral = await prisma.referral.create({
@@ -118,39 +102,6 @@ async function main() {
       status: 'in_progress',
       valueCents: BigInt(800_000),
       currency: 'BRL',
-    },
-  });
-
-  // 6) Agradecimento (Carlos -> Maria)
-  await prisma.thanks.create({
-    data: {
-      fromMemberId: carlos.id,
-      toMemberId: maria.id,
-      message: 'Obrigado pela indicação, Maria!',
-      valueCents: BigInt(20_000),
-      currency: 'BRL',
-    },
-  });
-
-  // 7) 1 a 1 (Maria x Carlos)
-  await prisma.oneOnOne.create({
-    data: {
-      memberAId: maria.id,
-      memberBId: carlos.id,
-      occurredAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // há 3 dias
-      notes: 'Conversamos sobre possíveis parcerias comerciais.',
-    },
-  });
-
-  // 8) Mensalidade (Maria)
-  const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  await prisma.due.create({
-    data: {
-      memberId: maria.id,
-      referenceMonth: firstDayOfMonth,
-      amountCents: BigInt(15_000),
-      currency: 'BRL',
-      status: 'open',
     },
   });
 

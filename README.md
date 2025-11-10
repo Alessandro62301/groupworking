@@ -70,7 +70,7 @@ Este seed popula o banco de dados com **dados iniciais de exemplo**, ideais para
 
 | Nome                | E-mail                   | Empresa           | Função                                | Senha       |
 | ------------------- | ------------------------ | ----------------- | ------------------------------------- | ----------- |
-| **Admin do Grupo**  | `admin@groupworking.com` | GroupWorking Ltda | 🛠️ **Administrador** (`admin: true`) | `admin123`  |
+| **Admin do Grupo**  | `admin@groupworking.com` | GroupWorking Ltda | Administrador (`admin: true`) | `admin123`  |
 | **Maria Silva**     | `maria@empresa.com`      | MS Marketing      | Membro                                | `maria123`  |
 | **Carlos Ferreira** | `carlos@startup.com`     | Startup X         | Membro                                | `carlos123` |
 
@@ -78,7 +78,7 @@ Este seed popula o banco de dados com **dados iniciais de exemplo**, ideais para
 
 ---
 
-##  **Intenções de Participação (Intentions)**
+####  **Intenções de Participação (Intentions)**
 
 | Nome               | E-mail                       | Status     | Observações                                    |
 | ------------------ | ---------------------------- | ---------- | ---------------------------------------------- |
@@ -87,61 +87,12 @@ Este seed popula o banco de dados com **dados iniciais de exemplo**, ideais para
 
 ---
 
-## **Tokens de Convite (Invite Tokens)**
+#### **Tokens de Convite (Invite Tokens)**
 
 | Token                              | Intenção Vinculada | Expira em | Utilizado |
 | ---------------------------------- | ------------------ | --------- | --------- |
 | `11112222333344445555666677778888` | Ana Aprovada       | +7 dias   | ❌ Não     |
 
----
-
-## **Reuniões (Meetings)**
-
-| Data | Local                   | Observações                 |
-| ---- | ----------------------- | --------------------------- |
-| Hoje | Espaço Coworking Center | “Reunião semanal do grupo.” |
-
-### **Check-ins**
-
-| Membro          | Reunião         | Horário |
-| --------------- | --------------- | ------- |
-| Admin do Grupo  | Reunião Semanal | Agora   |
-| Maria Silva     | Reunião Semanal | Agora   |
-| Carlos Ferreira | Reunião Semanal | Agora   |
-
----
-
-## **Indicações (Referrals)**
-
-| De → Para                         | Título                    | Descrição                                            | Status        | Valor       |
-| --------------------------------- | ------------------------- | ---------------------------------------------------- | ------------- | ----------- |
-| **Maria Silva → Carlos Ferreira** | “Site institucional XPTO” | “Maria indicou Carlos para desenvolver o site XPTO.” | `in_progress` | R$ 8.000,00 |
-
----
-
-## **Agradecimentos (Thanks)**
-
-| De → Para                         | Mensagem                          | Valor     |
-| --------------------------------- | --------------------------------- | --------- |
-| **Carlos Ferreira → Maria Silva** | “Obrigado pela indicação, Maria!” | R$ 200,00 |
-
----
-
-## **Reuniões 1 a 1 (One-on-Ones)**
-
-| Membro A        | Membro B            | Data      | Observações                                         |
-| --------------- | ------------------- | --------- | --------------------------------------------------- |
-| **Maria Silva** | **Carlos Ferreira** | Há 3 dias | “Conversamos sobre possíveis parcerias comerciais.” |
-
----
-
-## **Mensalidades (Dues)**
-
-| Membro          | Mês de Referência      | Valor     | Status |
-| --------------- | ---------------------- | --------- | ------ |
-| **Maria Silva** | Mês atual (YYYY-MM-01) | R$ 150,00 | `open` |
-
----
 
 # 5. Rode o servidor:
 
@@ -149,12 +100,31 @@ Este seed popula o banco de dados com **dados iniciais de exemplo**, ideais para
    npm run dev
    ```
 
-# 6. URLs importantes:
+# 6. Rotas Ativas:
 
    - `/` – Landing page com pequena aprensetação do nosso sistema.
    - `/intent` – formulário público de intenção.
-   - `/login` – autenticação (gera cookie httpOnly).
-   - `/admin/` – painel administrativo protegido.
+   - `/login` – autenticação
+   - `/admin/` – painel administrativo (admin@groupworking.com).
    - `/admin/intentions` – painel para aprovação de novos membros.
-
+   - `/member` – painel de membros (qualquer membro aprovado e com cadastro finalizado)
+   - `/member/referrals` – painel para lançamento de novas oportunidades
 ---
+
+# Fluxo Basico:
+   - `/` – Quero acessar
+   - `/intent` – Preencha para indicar intenção
+   - `/login` – Acessar como Administrador (admin@groupworking.com , admin123)
+      - `/admin` – Acesso a dashboard do Administrador (Opção B - Dashboard de Performance:)
+         - `/admin/intentions` – Aprovar Nova Intenção - copiar o link/token
+   -`/singup/(token)` - Completar Cadastro
+   - `/login` – Acessar com o novo cadastro
+      - `/member` – Acesso a dashboard do Membro
+         - `/member/referrals` – Cadastrar e Gerenciar Novas OPortunidades (Opção A - Sistema de Indicações:)
+   - `/login` – Deslogar
+
+
+   
+
+
+

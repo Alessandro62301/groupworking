@@ -3,18 +3,14 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-export type AdminNavItem = {
-  href: string;
-  label: string;
-  badge?: string;
-};
+import type { MemberNavItem } from './member-shell';
 
-type AdminSidebarProps = {
-  items: AdminNavItem[];
+type MemberSidebarProps = {
+  items: MemberNavItem[];
   onNavigate?: () => void;
 };
 
-export function AdminSidebar({ items, onNavigate }: AdminSidebarProps) {
+export function MemberSidebar({ items, onNavigate }: MemberSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -24,33 +20,27 @@ export function AdminSidebar({ items, onNavigate }: AdminSidebarProps) {
 
   return (
     <div className="flex h-screen max-h-screen flex-col border-r border-neutral-200">
-      <div className="flex items-center gap-2 border-b border-neutral-200 px-6 py-5">
-        <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-white">
-          GW
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-neutral-900">GroupWorking</p>
-          <p className="text-xs text-neutral-500">Painel do administrador</p>
-        </div>
+      <div className="border-b border-neutral-200 px-6 py-5">
+        <p className="text-xs uppercase tracking-widest text-neutral-400">GroupWorking</p>
+        <p className="text-lg font-semibold text-neutral-900">Área do membro</p>
       </div>
 
       <div className="flex flex-1 flex-col">
         <nav className="flex-1 space-y-1 px-4 py-6">
           {items.map((item) => {
             const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
-
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={onNavigate}
-                className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition ${
+                className={`block rounded-xl px-3 py-2 text-sm font-medium transition ${
                   isActive
                     ? 'bg-neutral-900 text-white'
                     : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900'
                 }`}
               >
-                <span>{item.label}</span>
+                {item.label}
               </Link>
             );
           })}

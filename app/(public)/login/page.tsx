@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { TextField } from '@/components/forms/TextField';
+import { TextField } from '@/components/forms/text-field';
 import { loginSchema, type LoginSchema } from '@/lib/schemas/auth';
 import { postJson } from '@/lib/api/http';
 

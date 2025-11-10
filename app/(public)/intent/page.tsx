@@ -7,7 +7,7 @@ import { intentionSchema, type IntentionSchema } from '@/lib/schemas/intentions'
 import { postJson } from '@/lib/api/http';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { TextField } from '@/components/forms/TextField';
+import { TextField } from '@/components/forms/text-field';
 import { ToastContainer, toast } from 'react-toastify';
 
 export default function IntentPage() {
