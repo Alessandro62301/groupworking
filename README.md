@@ -21,7 +21,7 @@ Toda a stack (frontend + backend + API) roda no mesmo app Next.js.
   - `JWT_SECRET` – chave usada para assinar os tokens.
 ---
 
-## Banco local via Docker
+## Banco local via Docker caso nao tenha um Banco local Ligado como (Wamp/Xampp/Lamp/Mysql)
 
 Inicilizando MariaDB usando o `docker-compose.yml` existente:
 
@@ -39,6 +39,7 @@ Credenciais padrão:
 Configure seu `.env` apontando para o container:
 
 ```
+# CONFIGURE DE ACORDO COM AS SUAS CREDENCIAIS
 DATABASE_URL="mysql://dev:dev@localhost:3306/groupworking"
 ```
 ---
@@ -69,7 +70,7 @@ DATABASE_URL="mysql://dev:dev@localhost:3306/groupworking"
    ```bash
    npx prisma migrate dev
    npx prisma generate
-   tsx prisma db seed         
+   npx prisma db seed       
    ```
 ---
 
