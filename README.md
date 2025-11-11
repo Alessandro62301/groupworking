@@ -2,9 +2,11 @@
 
 Este projeto implementa o fluxo descrito em `Architecture.MD` usando **Next.js 16 (App Router)**, **React 19**, **Prisma** e **MariaDB/MySQL**. O MVP atual inclui:
 
-1. Formulário público para captar intenções de novos membros.
-2. Painel administrativo para revisar e aprovar/recusar intenções.
-3. Autenticação baseada em **JWT** com cookies httpOnly para proteger a área administrativa.
+1. Lading page para divulgação da Plataforma
+2. Formulário público para captar intenções de novos membros.
+3. Painel administrativo para revisar e aprovar/recusar intenções.
+4. Painel para Gestão de novas oportunidades.
+5. Autenticação baseada em **JWT** para proteger a área administrativa.
 
 Toda a stack (frontend + backend + API) roda no mesmo app Next.js.
 
@@ -17,6 +19,28 @@ Toda a stack (frontend + backend + API) roda no mesmo app Next.js.
 - Variáveis de ambiente:
   - `DATABASE_URL` – string de conexão aceitada pelo Prisma.
   - `JWT_SECRET` – chave usada para assinar os tokens.
+---
+
+## Banco local via Docker
+
+Inicilizando MariaDB usando o `docker-compose.yml` existente:
+
+```bash
+docker compose up -d mariadb   # inicia o banco
+docker compose ps              # verifica status
+```
+
+Credenciais padrão:
+
+| Host      | Porta | Banco        | Usuário | Senha |
+|-----------|-------|--------------|---------|-------|
+| localhost | 3306  | groupworking | dev     | dev   |
+
+Configure seu `.env` apontando para o container:
+
+```
+DATABASE_URL="mysql://dev:dev@localhost:3306/groupworking"
+```
 ---
 
 ## Configuração e execução
@@ -45,19 +69,8 @@ Toda a stack (frontend + backend + API) roda no mesmo app Next.js.
    ```bash
    npx prisma migrate dev
    npx prisma generate
-   tsx prisma db seed         # Somente Ambiente de Desemvolvimento
+   tsx prisma db seed         
    ```
-
-4. Crie um membro administrador ativo com senha. Exemplo via Node REPL para gerar o hash ou Utilizamos o Seed para Gerar um Admin ativo:
-
-   ```bash
-   node -e "console.log(require('bcryptjs').hashSync('minha-senha', 10))"
-   ```
-
-   Use o Prisma Studio (`npx prisma studio`) ou SQL para inserir o registro em `members` preenchendo `password_hash` com o hash gerado e `admin = true`.
-
-   perfeito 👏 — aqui está a **versão em português** da lista completa de tudo que o **seeder** cadastra no seu banco de dados, formatada em Markdown para você incluir no repositório (`prisma/README_SEED.md`, por exemplo):
-
 ---
 
 ### **Resumo dos Dados do Seeder**
@@ -94,13 +107,13 @@ Este seed popula o banco de dados com **dados iniciais de exemplo**, ideais para
 | `11112222333344445555666677778888` | Ana Aprovada       | +7 dias   | ❌ Não     |
 
 
-# 5. Rode o servidor:
+# Rode o servidor:
 
    ```bash
    npm run dev
    ```
 
-# 6. Rotas Ativas:
+# Rotas Ativas:
 
    - `/` – Landing page com pequena aprensetação do nosso sistema.
    - `/intent` – formulário público de intenção.
@@ -124,7 +137,19 @@ Este seed popula o banco de dados com **dados iniciais de exemplo**, ideais para
    - `/login` – Deslogar
 
 
-   
+---
 
+# Testes automatizados
 
+O projeto inclui Jest + React Testing Library com os seguintes escopos:
 
+- **Unitários**: validações Zod (`lib/schemas/intentions`) e serviços desacoplados (`lib/services/intentions`).
+- **Componentes**: fluxo completo do formulário público de intenção (`app/(public)/intent/page.tsx`), simulando o envio e tratamento de erros.
+
+Scripts disponíveis:
+
+```bash
+npm run test          # executa toda a suíte
+npm run test:watch    # modo observação interativo
+npm run test:coverage # gera relatório em coverage/lcov-report/index.html
+```

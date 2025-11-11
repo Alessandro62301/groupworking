@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { Control, Controller } from 'react-hook-form';
 import clsx from 'clsx';
 
@@ -17,18 +18,21 @@ type Props = {
 export function TextField({
   control, name, label, placeholder, type = 'text', required, multiline, rows = 3,
 }: Props) {
+  const fieldId = useId();
+
   return (
     <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
         <div className="grid gap-1.5">
-          <label className="text-sm font-medium text-gray-800">
+          <label className="text-sm font-medium text-gray-800" htmlFor={fieldId}>
             {label} {required && <span className="text-rose-500">*</span>}
           </label>
           {multiline ? (
             <textarea
               {...field}
+              id={fieldId}
               rows={rows}
               placeholder={placeholder}
               className={clsx(
@@ -40,6 +44,7 @@ export function TextField({
           ) : (
             <input
               {...field}
+              id={fieldId}
               type={type}
               placeholder={placeholder}
               className={clsx(
